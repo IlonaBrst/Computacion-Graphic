@@ -31,14 +31,16 @@ shape.lineTo(0, 0);
 
 
 const extrudeSettings = {
-  steps: 10,
-  depth:10,
- 
+    steps: 10,
+    depth:10,
+
 };
 
 const coasterPathGeometry= new THREE.ExtrudeGeometry(shape, extrudeSettings);
 const coasterMaterial = new THREE.MeshStandardMaterial({ color: "red"});
 const coasterMesh = new THREE.Mesh(coasterPathGeometry, coasterMaterial);
+
+coasterMesh.scale.set(0.5, 0.5, 0.5);
 
 
 // Enable shadows for the coaster mesh
@@ -47,61 +49,50 @@ coasterMesh.receiveShadow = true;
 
 
 // Number of points to approximate a circle
-const circlePoints = 100;
+const circlePoints = 200;
 
-/*
-// Create points for a circle
-const circlePathPoints = [];
-for (let i = 0; i < circlePoints; i++) {
-  const theta = (i / circlePoints) * Math.PI * 2;
-  const x = Math.cos(theta) * 100; // Adjust the radius as needed
-  const y = Math.sin(theta) * 100; // Adjust the radius as needed
-  circlePathPoints.push(new THREE.Vector3(x, y, 0));
-}
-*/
 // Create a Catmull-Rom curve for the circle
 const circlePathPoints = new Array(circlePoints).fill().map((_, i) => {
     const radius = 100;
     const theta = (i / circlePoints) * Math.PI * 2;
     const x = Math.cos(theta) * radius;
     const y = Math.sin(theta) * radius;
-  
-  
+
     return new THREE.Vector3(x, y, 0);
-  });
-  
-  const circlePath = new THREE.CatmullRomCurve3(circlePathPoints, true); // Set closed to false
-  
+});
+
+const circlePath = new THREE.CatmullRomCurve3(circlePathPoints, true); // Set closed to false
+
 // Add coaster sections along the circle path
 for (let i = 0; i < circlePoints; i++) {
     const point = circlePath.getPointAt(i / circlePoints);
     const tangent = circlePath.getTangentAt(i / circlePoints);
-  
+
     const meshClone = coasterMesh.clone();
     meshClone.position.copy(point);
-  
+
     // Set the orientation of the coaster section
     const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), tangent);
     meshClone.setRotationFromQuaternion(quaternion);
-  
+    meshClone.rotateX(Math.PI / 2);
     scene.add(meshClone);
-  }
-  
-// Create a Catmull-Rom curve for the circle
-//const circlePath = new THREE.CatmullRomCurve3(circlePathPoints, true);
 
-/*
-// Create a tube geometry along the coaster path
-const tubeGeometry = new THREE.TubeGeometry(circlePath, 500, 2, 3, false);
-const tubeMaterial = new THREE.MeshStandardMaterial({ color: "red", roughness: 0.5, metalness: 0.5 });
-const tubeMesh = new THREE.Mesh(tubeGeometry, tubeMaterial);
-// Enable shadows for the tube mesh
-tubeMesh.castShadow = true;
-tubeMesh.receiveShadow = true;
+    if (i % 20 === 0) {
+        const cylinderGeometry = new THREE.CylinderGeometry(5, 5, 50, 32);
+        const cylinderMaterial = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
+        const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
 
-scene.add(tubeMesh);
+        // Move the cylinders more to the outside
+        const offset = 55;
+        const zOffset = -40; // Adjust the z offset as needed
+        const cylinderPosition = point.clone().add(tangent.clone().multiplyScalar(offset)).setZ(zOffset);
 
-*/
+
+        cylinder.position.copy(cylinderPosition);
+        cylinder.rotateX(Math.PI / 2);
+        scene.add(cylinder);
+    }
+}
 
 
 // Set camera position
@@ -124,8 +115,8 @@ scene.add(directionalLight);
 
 // Render the scene
 function render() {
-  requestAnimationFrame(render);
-  renderer.render(scene, camera);
+    requestAnimationFrame(render);
+    renderer.render(scene, camera);
 }
 
 // Start rendering
