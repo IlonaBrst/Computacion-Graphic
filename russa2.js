@@ -66,26 +66,23 @@ const circlePathPoints = new Array(circlePoints).fill().map((_, i) => {
     const x = Math.cos(theta) * radius;
     const y = Math.sin(theta) * radius;
   
-    // Adjust the signs based on the quadrant
-    const adjustedX = x < 0 ? -x : x;
-    const adjustedY = y < 0 ? -y : y;
   
-    return new THREE.Vector3(adjustedX, adjustedY, 0);
+    return new THREE.Vector3(x, y, 0);
   });
   
-  const circlePath = new THREE.CatmullRomCurve3(circlePathPoints, false); // Set closed to false
+  const circlePath = new THREE.CatmullRomCurve3(circlePathPoints, true); // Set closed to false
   
-  // Add coaster sections along the circle path
-  for (let i = 0; i < circlePoints; i++) {
-  const point = circlePath.getPointAt(i / (circlePoints - 1));
+// Add coaster sections along the circle path
+for (let i = 0; i < circlePoints; i++) {
+    const point = circlePath.getPointAt(i / circlePoints);
+    const tangent = circlePath.getTangentAt(i / circlePoints);
   
     const meshClone = coasterMesh.clone();
     meshClone.position.copy(point);
   
-    // Set the orientation of the coaster section using lookAt
-    const lookAtPoint = new THREE.Vector3(0, 0, 0);
-  
-    meshClone.lookAt(lookAtPoint);
+    // Set the orientation of the coaster section
+    const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), tangent);
+    meshClone.setRotationFromQuaternion(quaternion);
   
     scene.add(meshClone);
   }
