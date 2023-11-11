@@ -22,6 +22,23 @@ camera.updateProjectionMatrix();
 const ambientLight = new THREE.AmbientLight(0xaaaaaa);  // Lumière douce grise
 scene_manege.add(ambientLight);
 
+// Création d'un plan vert pour le sol
+const planeGeometry = new THREE.PlaneGeometry(5000, 2000); // Ajusté pour correspondre à l'échelle du manège
+const planeMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00 }); // Vert
+const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+plane.rotation.x = -Math.PI / 2; // Rotation pour que le plan soit horizontal
+plane.position.y = -100; // Position légèrement plus basse pour que le manège repose sur le plan
+scene_manege.add(plane);
+
+
+// Création d'un dôme bleu pour le ciel
+const skyDomeGeometry = new THREE.SphereGeometry(800, 32, 32); // Rayon ajusté
+const skyDomeMaterial = new THREE.MeshBasicMaterial({ color: 0xADD8E6, side: THREE.BackSide }); // Bleu, rendu de l'intérieur
+const skyDome = new THREE.Mesh(skyDomeGeometry, skyDomeMaterial);
+
+
+scene_manege.add(skyDome);
+
 
 // Helper Functions
 function positionObjet(objet, x, y, z) {
@@ -42,8 +59,8 @@ function createMesh(geometry, color) {
 
 // Create Chair
 const createChair = () => {
-    const assiseDimensions = { width: 4, height: 0.05, depth: 4 };
-    const dossierDimensions = { width: 4, height: 4, depth: 2};
+    const assiseDimensions = { width: 4, height: 2, depth: 4 };
+    const dossierDimensions = { width: 4, height: 5, depth: 2};
 
     const assise = createMesh(
         new THREE.BoxGeometry(assiseDimensions.width, assiseDimensions.height, assiseDimensions.depth),
@@ -103,6 +120,14 @@ for (let i = 0; i < filteredVertices.length; i += stepSize) {
     }
 }
 
+//prendre le premier vertex pour les coordonnées du poteau
+
+
+
+const poteaucoo = sampledVertices[0];
+
+
+const smallCylinders = [];
 // keep only 8 points
 sampledVertices.forEach(vertex => {
     const smallCylinderHeight = 45;
@@ -112,16 +137,112 @@ sampledVertices.forEach(vertex => {
         0xff0000
     );
 
-    smallCylinder.position.set(vertex.x, vertex.y-2*height_roof-4, vertex.z);
+	if (vertex.x > 0 && vertex.z > 0){
+		smallCylinder.position.set(vertex.x-3, poteaucoo.y-2*height_roof-10, vertex.z-3);
+		roof.add(smallCylinder);
+		const chairClone = chair.clone();
+		chairClone.position.set(smallCylinder.position.x, poteaucoo.y - smallCylinderHeight-height_roof, smallCylinder.position.z);
+		const centerPoint = new THREE.Vector3(0, chairClone.position.y, 0);
+    
+		// Utilisez la méthode lookAt pour orienter la chaise vers le point central
+		chairClone.lookAt(centerPoint);
+		smallCylinder.lookAt(centerPoint);
+	
+		// Puisque lookAt oriente l'objet de sorte que son axe -z pointe vers le point cible,
+		// vous devrez peut-être ajuster la rotation de la chaise de 180 degrés autour de l'axe Y
+		// si vous voulez que le devant de la chaise soit orienté vers l'extérieur
+		chairClone.rotation.y += Math.PI;
 
-    const chairClone = chair.clone();
-    chairClone.position.set(vertex.x, vertex.y - smallCylinderHeight-height_roof, vertex.z+3);
-    //ASSEMBLE OBJET TOGETHER
-    roof.add(smallCylinder);
-    roof.add(chairClone);
+		
+
+		roof.add(chairClone);
+		smallCylinders.push(smallCylinder); 
+
+
+
+	}
+
+	else if (vertex.x >0 && vertex.z < 0){
+		smallCylinder.position.set(vertex.x-3, poteaucoo.y-2*height_roof-10, vertex.z+3);
+		
+		roof.add(smallCylinder);
+		const chairClone = chair.clone();
+		chairClone.position.set(smallCylinder.position.x, poteaucoo.y - smallCylinderHeight-height_roof,smallCylinder.position.z);
+		const centerPoint = new THREE.Vector3(0, chairClone.position.y, 0);
+    
+		// Utilisez la méthode lookAt pour orienter la chaise vers le point central
+		chairClone.lookAt(centerPoint);
+		smallCylinder.lookAt(centerPoint);
+
+	
+		// Puisque lookAt oriente l'objet de sorte que son axe -z pointe vers le point cible,
+		// vous devrez peut-être ajuster la rotation de la chaise de 180 degrés autour de l'axe Y
+		// si vous voulez que le devant de la chaise soit orienté vers l'extérieur
+		chairClone.rotation.y += Math.PI;
+
+
+		
+		
+		roof.add(chairClone);
+		smallCylinders.push(smallCylinder); 
+
+	}
+
+	else if (vertex.x <0 && vertex.z > 0){
+		smallCylinder.position.set(vertex.x+3, poteaucoo.y-2*height_roof-10, vertex.z-3);
+		roof.add(smallCylinder);
+		const chairClone = chair.clone();
+		chairClone.position.set(smallCylinder.position.x, poteaucoo.y - smallCylinderHeight-height_roof, smallCylinder.position.z);
+
+		const centerPoint = new THREE.Vector3(0, chairClone.position.y, 0);
+    
+		// Utilisez la méthode lookAt pour orienter la chaise vers le point central
+		chairClone.lookAt(centerPoint);
+		smallCylinder.lookAt(centerPoint);
+
+	
+		// Puisque lookAt oriente l'objet de sorte que son axe -z pointe vers le point cible,
+		// vous devrez peut-être ajuster la rotation de la chaise de 180 degrés autour de l'axe Y
+		// si vous voulez que le devant de la chaise soit orienté vers l'extérieur
+		chairClone.rotation.y += Math.PI;
+
+	
+
+		roof.add(chairClone);
+		smallCylinders.push(smallCylinder); 
+
+
+	}
+
+	else if (vertex.x <0 && vertex.z < 0){
+		smallCylinder.position.set(vertex.x+3, poteaucoo.y-2*height_roof-10, vertex.z+3);
+		roof.add(smallCylinder);
+		const chairClone = chair.clone();
+		chairClone.position.set(smallCylinder.position.x, poteaucoo.y - smallCylinderHeight-height_roof, smallCylinder.position.z);
+		
+		const centerPoint = new THREE.Vector3(0, chairClone.position.y, 0);
+    
+		// Utilisez la méthode lookAt pour orienter la chaise vers le point central
+		chairClone.lookAt(centerPoint);
+		smallCylinder.lookAt(centerPoint);
+
+	
+		// Puisque lookAt oriente l'objet de sorte que son axe -z pointe vers le point cible,
+		// vous devrez peut-être ajuster la rotation de la chaise de 180 degrés autour de l'axe Y
+		// si vous voulez que le devant de la chaise soit orienté vers l'extérieur
+		chairClone.rotation.y += Math.PI;
+		
+
+		
+		roof.add(chairClone);
+
+		smallCylinders.push(smallCylinder); 
+
+	}
+    
 });
 
-console.log(sampledVertices);
+
 
 
 
@@ -137,7 +258,7 @@ positionObjet(poteau, 0, 0, 0);
 roof.position.y = height_pole / 2 + height_roof / 2;
 
 
-// contour poteau
+// contour poteau =CODE DU PROF MODIFIER
 
 			// Construcción de la superficie de revolución
 		   
@@ -267,14 +388,6 @@ roof.position.y = height_pole / 2 + height_roof / 2;
 
 
 
-// Ajout de la texture maillage (wireframe) aux objets
-/*
-roofMaterial.wireframe = true;
-poteauMaterial.wireframe = true;
-assiseMaterial.wireframe = true;
-dossierMaterial.wireframe = true;
-material.wireframe = true; // pour le mesh de superficie
-*/
 // Create Point Light
 const pointLight = new THREE.PointLight(0xffffff, 1, 1000);
 pointLight.position.set(50, 50, 50);
@@ -292,13 +405,100 @@ const maxVitesseRotation = 0.1;
 const maxInclinaisonChaise = Math.PI / 4; // 45 degrés
 const vitesseInclinaisonChaise = 0.01;
 
+// Créez un groupe pour contenir tous les éléments de la scène
+const manegeGroup = new THREE.Group();
+
+// Ajoutez tous les éléments à ce groupe
+manegeGroup.add(ambientLight);
+manegeGroup.add(axesHelper);
+manegeGroup.add(roof); // roof contient déjà les chaises et les petits cylindres
+manegeGroup.add(poteau);
+manegeGroup.add(mesh); // si 'mesh' est un élément que vous voulez inclure
+manegeGroup.add(pointLight);
+
+// Ajustez la position du groupe si nécessaire
+// manegeGroup.position.set(x, y, z);
+manegeGroup.position.y = -60;
+
+//changer taille
+manegeGroup.scale.set(0.5, 0.5, 0.5);
+// Maintenant, vous pouvez ajouter ce groupe à votre scène
+scene_manege.add(manegeGroup);
+
+
+//Poteau
+
+// Création d'un poteau
+
+const lampadaire = new THREE.Group();
+
+const poteauGeo = new THREE.CylinderGeometry(1.25, 1.25, 100, 32);
+const poteauMat = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+const poteauLampadaire = new THREE.Mesh(poteauGeo, poteauMat);
+
+const ampouleGeo = new THREE.SphereGeometry(8, 100, 32);
+const ampouleMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+const ampoule = new THREE.Mesh(ampouleGeo, ampouleMat);
+ampoule.position.y = 50;
+
+
+lampadaire.add(poteauLampadaire);
+lampadaire.add(ampoule);
+
+lampadaire.position.set(50, -70, 0);
+
+lampadaire.scale.set(0.5, 0.5, 0.5);
+
+scene_manege.add(lampadaire);
+
+// Paramètres de l'animation
+const maxAngle = 0.001; // 5 degrés en radians
+const rotationSpeed = 0.001; // La vitesse de rotation par frame, pour une animation lente
+
+// Un tableau pour suivre l'angle actuel de rotation de chaque cylindre
+const currentAngles = new Array(smallCylinders.length).fill(0);
+
+function animateCylinders() {
+    // Animer chaque petit cylindre
+    let localAxisX = new THREE.Vector3(1, 0, 0);
+
+    smallCylinders.forEach((cylinder, index) => {
+        // Si l'angle actuel est inférieur à l'angle maximal, continuez à tourner
+        if (currentAngles[index] < maxAngle) {
+            // Calculez le montant de rotation pour cette frame
+            let angleIncrement = Math.min(rotationSpeed, maxAngle - currentAngles[index]);
+            cylinder.rotateOnAxis(localAxisX, angleIncrement);
+
+            // Mettre à jour l'angle actuel
+            currentAngles[index] += angleIncrement;
+        }
+        // Si l'angle actuel est égal ou dépasse l'angle maximal, la rotation s'arrête
+    });
+
+   
+}
+
+
+// Boucle de rendu
+function animate() {
+    requestAnimationFrame(animate);
+
+    animateCylinders(); // Appelez la fonction d'animation des cylindres
+
+    controls.update(); // Mettre à jour les contrôles d'orbite
+    renderer.render(scene_manege, camera); // Rendre la scène
+}
+
+animate(); // Démarrer la boucle d'animation
+
+/*
 // Fonction d'animation
 function animate() {
     requestAnimationFrame(animate);
 
     // Augmenter la vitesse de rotation jusqu'à une certaine limite
     if (vitesseRotation < maxVitesseRotation) {
-        vitesseRotation += 0.001; // Increment de la vitesse, à ajuster selon les besoins
+        vitesseRotation += 0.00000001; // Increment de la vitesse, à ajuster selon les besoins
     }
 
     // Rotation du disque (toit)
@@ -318,10 +518,12 @@ function animate() {
     // Mettre à jour le rendu de la scène
     renderer.render(scene_manege, camera);
 }
-animate();
+animate();*/
 
 
 
 
-export default scene_manege;
+
+
+
 
