@@ -489,36 +489,46 @@ function animate() {
     renderer.render(scene_manege, camera); // Rendre la scène
 }
 
-animate(); // Démarrer la boucle d'animation
 
-/*
+function manege(){
+
+	// Augmenter la vitesse de rotation jusqu'à une certaine limite
+	if (vitesseRotation < maxVitesseRotation) {
+	  vitesseRotation += 0.00000001; // Increment de la vitesse, à ajuster selon les besoins
+  }
+
+  // Rotation du disque (toit)
+  roof.rotation.y += vitesseRotation;
+
+  // Inclinaison aléatoire du disque
+  roof.rotation.x += (Math.random() - 0.5) * 0.01;
+  roof.rotation.z += (Math.random() - 0.5) * 0.01;
+
+  // Ajustement de l'inclinaison des chaises
+  chair.children.forEach(child => {
+	  if (child.rotation.z < maxInclinaisonChaise) {
+		  child.rotation.z += vitesseInclinaisonChaise;
+	  }
+  });
+
+}
+
 // Fonction d'animation
 function animate() {
-    requestAnimationFrame(animate);
 
-    // Augmenter la vitesse de rotation jusqu'à une certaine limite
-    if (vitesseRotation < maxVitesseRotation) {
-        vitesseRotation += 0.00000001; // Increment de la vitesse, à ajuster selon les besoins
-    }
+  requestAnimationFrame(animate);
 
-    // Rotation du disque (toit)
-    roof.rotation.y += vitesseRotation;
+  manege();
 
-    // Inclinaison aléatoire du disque
-    roof.rotation.x += (Math.random() - 0.5) * 0.01;
-    roof.rotation.z += (Math.random() - 0.5) * 0.01;
-
-    // Ajustement de l'inclinaison des chaises
-    chair.children.forEach(child => {
-        if (child.rotation.z < maxInclinaisonChaise) {
-            child.rotation.z += vitesseInclinaisonChaise;
-        }
-    });
-
-    // Mettre à jour le rendu de la scène
-    renderer.render(scene_manege, camera);
+  renderer.render(scene_manege, camera);
 }
-animate();*/
+
+
+animate(); // Démarrer la boucle d'animation
+
+
+
+
 
 
 
