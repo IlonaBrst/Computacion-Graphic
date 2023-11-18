@@ -20,7 +20,6 @@ const controlsOrbitalFlyingChairs = new OrbitControls(cameraOrbitalFlyingChairs,
 const carroCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
 
 
-
 cameraFirstPerson.position.set(-70,-50, -180); 
 cameraOrbitalGeneral.position.set(-70, 0, 200); 
 controlsOrbitalGeneral.target.set(80, 20, 100); 
@@ -30,7 +29,7 @@ controlsOrbitalRollerCoaster.target.set(10, 0, 10);
 cameras.push(cameraFirstPerson,cameraOrbitalGeneral,cameraOrbitalFlyingChairs,carroCamera);
 
 
-//orbit control
+// Orbit control
 controlsOrbitalGeneral.update();
 controlsOrbitalRollerCoaster.update();
 controlsOrbitalFlyingChairs.update();
@@ -39,7 +38,6 @@ controlsOrbitalFlyingChairs.update();
 window.addEventListener('keydown', (event) => {
     if (event.key === 'c') {
         activeCameraIndex = (activeCameraIndex + 1) % cameras.length;
-        // Mettre à jour les contrôles de la caméra active si nécessaire
     }
 });
 
@@ -65,7 +63,7 @@ const ambientLight = new THREE.AmbientLight(0xaaaaaa);  // Lumière douce grise
 scene.add(ambientLight);
 
 // Création d'un plan vert pour le sol
-const planeGeometry = new THREE.PlaneGeometry(5000, 2000); // Ajusté pour correspondre à l'échelle du manège
+const planeGeometry = new THREE.PlaneGeometry(5000, 2000); 
 const planeMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00 }); // Vert
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 plane.rotation.x = -Math.PI / 2; // Rotation pour que le plan soit horizontal
@@ -73,8 +71,8 @@ plane.position.y = -100; // Position légèrement plus basse pour que le manège
 
 
 // Création d'un dôme bleu pour le ciel
-const skyDomeGeometry = new THREE.SphereGeometry(800, 32, 32); // Rayon ajusté
-const skyDomeMaterial = new THREE.MeshBasicMaterial({ color: 0xADD8E6, side: THREE.BackSide }); // Bleu, rendu de l'intérieur
+const skyDomeGeometry = new THREE.SphereGeometry(800, 32, 32); 
+const skyDomeMaterial = new THREE.MeshBasicMaterial({ color: 0xADD8E6, side: THREE.BackSide }); // Bleu
 const skyDome = new THREE.Mesh(skyDomeGeometry, skyDomeMaterial);
 
 scene.add(plane);
@@ -115,8 +113,7 @@ const createChair = () => {
 const chair = createChair();
 
 
-
-//MANEGE GROUP :
+// FLYING CHAIRS GROUP :
 
 // Create Roof
 const radius_roof = 30;
@@ -172,15 +169,8 @@ sampledVertices.forEach(vertex => {
 		const chairClone = chair.clone();
 		chairClone.position.set(smallCylinder.position.x, poteaucoo.y - smallCylinderHeight-height_roof, smallCylinder.position.z);
 		const centerPoint = new THREE.Vector3(0, chairClone.position.y, 0);
-    
-		// Utilisez la méthode lookAt pour orienter la chaise vers le point central
 		chairClone.lookAt(centerPoint);
-	
-		// Puisque lookAt oriente l'objet de sorte que son axe -z pointe vers le point cible,
-		// vous devrez peut-être ajuster la rotation de la chaise de 180 degrés autour de l'axe Y
-		// si vous voulez que le devant de la chaise soit orienté vers l'extérieur
 		chairClone.rotation.y += Math.PI;
-
 		roof.add(chairClone);
 		smallCylinders.push(smallCylinder); 
 
@@ -193,9 +183,7 @@ sampledVertices.forEach(vertex => {
 		const chairClone = chair.clone();
 		chairClone.position.set(smallCylinder.position.x, poteaucoo.y - smallCylinderHeight-height_roof,smallCylinder.position.z);
 		const centerPoint = new THREE.Vector3(0, chairClone.position.y, 0);
-    
-		// Utilisez la méthode lookAt pour orienter la chaise vers le point central
-		chairClone.lookAt(centerPoint);
+    		chairClone.lookAt(centerPoint);
 		chairClone.rotation.y += Math.PI;
 		roof.add(chairClone);
 
@@ -210,14 +198,11 @@ sampledVertices.forEach(vertex => {
 		const chairClone = chair.clone();
 		chairClone.position.set(smallCylinder.position.x, poteaucoo.y - smallCylinderHeight-height_roof, smallCylinder.position.z);
 		const centerPoint = new THREE.Vector3(0, chairClone.position.y, 0);
-    
-		// Utilisez la méthode lookAt pour orienter la chaise vers le point central
-		chairClone.lookAt(centerPoint);
+    		chairClone.lookAt(centerPoint);
 		chairClone.rotation.y += Math.PI;
 		roof.add(chairClone);
 
 		smallCylinders.push(smallCylinder); 
-
 
 	}
 
@@ -227,11 +212,8 @@ sampledVertices.forEach(vertex => {
 
 		const chairClone = chair.clone();
 		chairClone.position.set(smallCylinder.position.x, poteaucoo.y - smallCylinderHeight-height_roof, smallCylinder.position.z);
-		
 		const centerPoint = new THREE.Vector3(0, chairClone.position.y, 0);
-    
-		// Utilisez la méthode lookAt pour orienter la chaise vers le point central
-		chairClone.lookAt(centerPoint);
+    		chairClone.lookAt(centerPoint);
 		chairClone.rotation.y += Math.PI;
 		roof.add(chairClone);
 
@@ -241,10 +223,7 @@ sampledVertices.forEach(vertex => {
 
 
 
-
-
-
-// Create Pole sur y
+// Create Pole on y
 const radius_pole = 5;
 const height_pole = 100;
 const poteauGeometry = new THREE.CylinderGeometry(radius_pole, radius_pole, height_pole, 10, 32);
@@ -258,7 +237,7 @@ poteau.position.z = 0
 roof.position.y = height_pole / 2 + height_roof / 2;
 
 
-// contour poteau =CODE DU PROF MODIFIER
+// contour du poteau
 
 // Construcción de la superficie de revolución
 // curvageneradora: curva definida en el plano XY que será rotada alrededor del eje Y
@@ -316,28 +295,18 @@ for ( let j = 0; j <= capas; j++ ) {
 // Cargar el buffer de la superficie
 for ( let j = 0, k = 0; j < capas; j++ )
 	for ( let i = 0; i < pasos; i++, k += 6 ) {
-		// A: i * ( capas + 1 ) + j
 		vec4.fromArray( reticula, ( i * ( capas + 1 ) + j ) * 4 );
-		// Triangulo ABC
 		vec4.toArray( buffersuperficie, k * 4 );
-		// Triangulo ACD
 		vec4.toArray( buffersuperficie, ( k + 3 ) * 4 );
 
-		// B: i * ( capas + 1 ) + j + 1
 		vec4.fromArray( reticula, ( i * ( capas + 1 ) + j + 1 ) * 4 );
-		// Triangulo ABC
 		vec4.toArray( buffersuperficie, ( k + 1 ) * 4 );
-
-		// C: ( i + 1 ) * ( capas + 1 ) + j + 1
+		
 		vec4.fromArray( reticula, (( i + 1 ) * ( capas + 1 ) + j + 1 ) * 4 );
-		// Triangulo ABC
 		vec4.toArray( buffersuperficie, ( k + 2 ) * 4 );
-		// Triangulo ACD
 		vec4.toArray( buffersuperficie, ( k + 4 ) * 4 );
 
-		// D: ( i + 1 ) * ( capas + 1 ) + j
 		vec4.fromArray( reticula, (( i + 1 ) * ( capas + 1 ) + j ) * 4 );
-		// Triangulo ACD
 		vec4.toArray( buffersuperficie, ( k + 5 ) * 4 );
 }
 
@@ -380,25 +349,23 @@ scene.add(mesh);
 mesh.position.y = -height_pole/2 +5
 
 
-//MANEGE :
+//FLYING CHAIRS :
 
-// Créez un groupe pour contenir tous les éléments de la scène
+// Groupe contenant tous les éléments de la scène
 const manegeGroup = new THREE.Group();
 
-// Ajoutez tous les éléments à ce groupe
+// Ajout des éléments à ce groupe
 manegeGroup.add(ambientLight);
 manegeGroup.add(roof); // roof contient déjà les chaises et les petits cylindres
 manegeGroup.add(poteau);
-manegeGroup.add(mesh); // si 'mesh' est un élément que vous voulez inclure
+manegeGroup.add(mesh);
 manegeGroup.add(pointLight);
 
-// Ajustez la position du groupe si nécessaire
-// manegeGroup.position.set(x, y, z);
 manegeGroup.position.y = -60;
 
-//changer taille
+//changement de la taille
 manegeGroup.scale.set(0.5, 0.5, 0.5);
-// Maintenant, vous pouvez ajouter ce groupe à votre scène
+
 scene.add(manegeGroup);
 
 cameraOrbitalFlyingChairs.position.set(poteau.position.x + 10, poteau.position.y-50, poteau.position.z +10); // Vue sur les chaises volantes
@@ -468,7 +435,6 @@ coasterMesh.receiveShadow = true;
 
 
 // Number of points to approximate a circle
-
 const coasterGroup = new THREE.Group();
 
 const circlePoints = 200;
@@ -483,7 +449,7 @@ const circlePathPoints = new Array(circlePoints).fill().map((_, i) => {
     return new THREE.Vector3(x, y, 0);
 });
 
-const circlePath = new THREE.CatmullRomCurve3(circlePathPoints, true); // Set closed to false
+const circlePath = new THREE.CatmullRomCurve3(circlePathPoints, true);
 
 // Add coaster sections along the circle path
 for (let i = 0; i < circlePoints; i++) {
@@ -506,7 +472,7 @@ for (let i = 0; i < circlePoints; i++) {
 
         // Move the cylinders more to the outside
         const offset = 55;
-        const zOffset = -40; // Adjust the z offset as needed
+        const zOffset = -40;
         const cylinderPosition = point.clone().add(tangent.clone().multiplyScalar(offset)).setZ(zOffset);
 
 
@@ -551,57 +517,34 @@ dossier.position.z = -(assiseDimensions.depth / 2 + dossierDimensions.depth / 2)
 
 
 // faire un seul objet chaise
-
 const chaise = new THREE.Group();
 
 chaise.add(assise);
-
 chaise.add(dossier);
-
 chaise.position.y = 2;
-
 chaise.position.x = 0;
-
 chaise.position.z = -8;
 
 const chair2 = chaise.clone();  
 
 chair2.position.x = 0;
-
 chair2.position.z = -3;
-
-
-
-
 
 //  devant 
 
 const devantGeometry = new THREE.CylinderGeometry(3, 4, 4, 32);
-
 const devantMaterial = new THREE.MeshBasicMaterial({ color: 'yellow'});
-
 const devant = new THREE.Mesh(devantGeometry, devantMaterial);
 
 devant.position.y = 2;
-
 devant.position.z = 2;
-
 devant.rotation.x = Math.PI / 2;
-
 
 // derriere = clone
 
 const derriere = devant.clone();
-
 derriere.position.z = -14;
-
 derriere.rotation.x = -Math.PI / 2;
-
-
-
-
-
-
 
 // milieu carro
 
@@ -642,8 +585,8 @@ carro.scale.set(0.5, 0.5, 0.5);
 const startPoint = circlePath.getPointAt(0);
 carro.position.set(startPoint.x, startPoint.y, startPoint.z);
 
-// Ajustez la hauteur de "carro" pour l'aligner avec la surface de la montagne russe
-// Cela dépendra de la hauteur de votre "carro" et de la façon dont vous avez construit la montagne russe
+// Ajustement de la hauteur du carro pour l'aligner avec la surface de la montagne russe
+//dépend de la hauteur du carro et de la façon dont la montagne russe est construite
 carro.position.x += coasterGroup.position.x
 carro.position.y += coasterGroup.position.y;
 carro.position.z += coasterGroup.position.z
@@ -658,7 +601,7 @@ carro.position.add(coasterGroup.position);
 
 
 
-// MANEGE ANIMATION :
+// FLYING CHAIRS ANIMATION :
 let vitesseRotation = 0.01;
 const maxVitesseRotation = 0.1;
 const maxInclinaisonChaise = Math.PI / 4; // 45 degrés
@@ -669,7 +612,7 @@ function manege(){
 
       // Augmenter la vitesse de rotation jusqu'à une certaine limite
       if (vitesseRotation < maxVitesseRotation) {
-        vitesseRotation += 0.00000001; // Increment de la vitesse, à ajuster selon les besoins
+        vitesseRotation += 0.00000001;
     }
 
     // Rotation du disque (toit)
@@ -691,34 +634,33 @@ function manege(){
 // MONTAGNE RUSSE ANIMATION :
 
 let progress = 0; // Démarre à 0, ce qui est le début de la courbe
-const animationSpeed = 0.0005; // Vitesse de l'animation, ajustez selon besoin
+const animationSpeed = 0.0005; // Vitesse de l'animation
 
 // Fonction d'animation mise à jour pour animer le carro
 function russa() {
-// Mettre à jour la progression du carro le long de la courbe
+// Mise à jour de la progression du carro le long de la courbe
     progress += animationSpeed;
-    progress = progress % 1; // Gardez la progression entre 0 et 1
+    progress = progress % 1;
 
-    // Obtenir le point et la tangente sur la courbe à la position actuelle
+    // Point et tangente sur la courbe à la position actuelle
     const point = circlePath.getPointAt(progress);
     const tangent = circlePath.getTangentAt(progress).normalize();
 
-    // Calculer l'axe binormal (perpendiculaire à la tangente et au vecteur 'up')
+    // Calcul de l'axe binormal (perpendiculaire à la tangente et au vecteur 'up')
     const up = new THREE.Vector3(0, 1, 0);
     const binormal = new THREE.Vector3().crossVectors(up, tangent).normalize();
 
-    // Décaler le carro du centre du chemin par la valeur binormal
-    const offset = 5; // La valeur pour écarter le "carro" du chemin
+    // Décalage du carro du centre du chemin par la valeur binormal
+    const offset = 5; // valeur pour écarter le carro du chemin
     carro.position.copy(point).add(binormal.multiplyScalar(offset));
 
-    // Définir l'orientation du carro pour suivre la courbe
-    // Le 'lookAt' vector doit être le point actuel plus la tangente pour orienter le "carro" vers l'avant
+    // Définition de l'orientation du carro pour suivre la courbe
     const lookAt = new THREE.Vector3().addVectors(carro.position, tangent);
     carro.lookAt(lookAt);
 
-    // Ajuster l'orientation pour que le "carro" soit "debout"
-    carro.rotation.z = Math.PI / 2; // Cette ligne ajuste la rotation sur l'axe Z pour être aligné verticalement.
-// verifier ou regarde camera et fructum : essayer sin el carro et avec ou deplacer plsu en haut de la caméra
+    // Ajustement de l'orientation pour que le carro soit debout
+    carro.rotation.z = Math.PI / 2; // ajuste la rotation sur l'axe Z pour être aligné verticalement.
+// verifier ou regarde camera et fructum : essayer sin el carro et avec ou deplacer plus en haut de la caméra
     if (cameras[activeCameraIndex] === carroCamera) {
       const offset = new THREE.Vector3(0, 2, -5);
       const lookAtOffset = new THREE.Vector3(0, 1, 10);
