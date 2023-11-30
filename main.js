@@ -5,6 +5,9 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 const scene = new THREE.Scene();
 const camera = new THREE.OrthographicCamera(-window.innerWidth / 2, window.innerWidth / 2, window.innerHeight / 2, -window.innerHeight / 2, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+
 
 const cameras = [];
 let activeCameraIndex = 0;
@@ -44,10 +47,8 @@ window.addEventListener('keydown', (event) => {
 });
 
 
-// Create Point Light
-const pointLight = new THREE.PointLight(0xffffff, 1, 1000);
-pointLight.position.set(50, 50, 50);
-scene.add(pointLight);
+
+
 
 // Set up Orbit Controls for Camera
 const controls = new OrbitControls(cameras[activeCameraIndex], renderer.domElement);
@@ -60,32 +61,92 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 
+
+
+// Texture Loader
+// roof 
+const roofLoader = new THREE.TextureLoader();
+const roofTexture = roofLoader.load('material/maps/patron3.png');
+//cyllinder
+const cyllinderLoader = new THREE.TextureLoader();
+const cyllinderTexture = cyllinderLoader.load('material/maps/patron1.png');
+
+//sky 
+const skyLoader = new THREE.TextureLoader();
+const skyTexture = skyLoader.load('material/maps/sunset.jpg');
+
+
+//plane
+const planeLoader = new THREE.TextureLoader();
+const planeTexture = planeLoader.load('material/maps/pasto.jpg');
+
+// reflection
+const reflectionLoader = new THREE.CubeTextureLoader();
+const reflectionMap = reflectionLoader.load('material\maps\refmapGreyRoom3.jpg');
+
 // Ajout de lumière ambiante
-const ambientLight = new THREE.AmbientLight(0xaaaaaa);  // Lumière douce grise
+const ambientLight = new THREE.AmbientLight('white',0.5);  // Lumière blanche
 scene.add(ambientLight);
 
 // Création d'un plan vert pour le sol
 const planeGeometry = new THREE.PlaneGeometry(5000, 2000); // Ajusté pour correspondre à l'échelle du manège
-const planeMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00 }); // Vert
+const planeMaterial = new THREE.MeshPhongMaterial({ map: planeTexture, side: THREE.DoubleSide }); // Double face pour que le plan soit visible de dessous
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 plane.rotation.x = -Math.PI / 2; // Rotation pour que le plan soit horizontal
 plane.position.y = -100; // Position légèrement plus basse pour que le manège repose sur le plan
+plane.receiveShadow = true;
+plane.castShadow = true;
+
+
 
 
 // Création d'un dôme bleu pour le ciel
 const skyDomeGeometry = new THREE.SphereGeometry(800, 32, 32); // Rayon ajusté
-const skyDomeMaterial = new THREE.MeshBasicMaterial({ color: 0xADD8E6, side: THREE.BackSide }); // Bleu, rendu de l'intérieur
+const skyDomeMaterial = new THREE.MeshPhongMaterial({ map: skyTexture, side: THREE.DoubleSide }); // Double face pour que le dôme soit visible de l'intérieur
 const skyDome = new THREE.Mesh(skyDomeGeometry, skyDomeMaterial);
+skyDome.castShadow = true;
 
 scene.add(plane);
 scene.add(skyDome);
 
 
 // Utility function to create mesh
-function createMesh(geometry, color) {
-    const material = new THREE.MeshBasicMaterial({ color });
+function createMesh(geometry, Kd, Ks, shininess) {
+    const material = new THREE.MeshPhongMaterial({
+        color: Kd, // la couleur de base du matériau
+        //envMap: reflectionMap, // la carte de réflexion
+        specular:Ks,
+        reflectivity: 0.9, // La réflectivité de la surface
+        shininess: 150, // La brillance de la surface
+         });
+
     return new THREE.Mesh(geometry, material);
 }
+
+// Utility function to create mesh
+function createMeshLight(geometry, Kd, Ks, shininess) {
+    const material = new THREE.MeshPhongMaterial({
+        color: Kd, // la couleur de base du matériau
+        //envMap: reflectionMap, // la carte de réflexion
+        specular:Ks,
+        reflectivity: 0.9, // La réflectivité de la surface
+        shininess: 150, // La brillance de la surface
+        emissive: 'yellow',
+        emissiveIntensity: 0.4,
+         });
+
+    return new THREE.Mesh(geometry, material);
+}
+function createMeshTexture(geometry, texture, Ks, shininess) {
+    const material = new THREE.MeshPhongMaterial({
+        map: texture,
+        specular:Ks,
+        shininess: shininess,
+         });
+
+    return new THREE.Mesh(geometry, material);
+}
+
 
 // Create Chair
 const createChair = () => {
@@ -94,13 +155,13 @@ const createChair = () => {
 
     const assise = createMesh(
         new THREE.BoxGeometry(assiseDimensions.width, assiseDimensions.height, assiseDimensions.depth),
-        'yellow'
+        0x00ff00, 0x0000ff, 30
     );
     assise.position.y = assiseDimensions.height / 2;
 
     const dossier = createMesh(
         new THREE.BoxGeometry(dossierDimensions.width, dossierDimensions.height, dossierDimensions.depth),
-        0xff0000
+        0xff0000, 0x0000ff, 30
     );
     dossier.position.set(0, (dossierDimensions.height / 2) + assiseDimensions.height, -(assiseDimensions.depth / 2 + dossierDimensions.depth / 2));
 
@@ -122,14 +183,15 @@ const chair = createChair();
 const radius_roof = 30;
 const height_roof = 10;
 
-const roof = createMesh(
-    new THREE.CylinderGeometry(radius_roof, radius_roof, height_roof, 10, 32),
-    0x888888
+const roof = createMeshTexture(
+    new THREE.CylinderGeometry(radius_roof, radius_roof, height_roof, 10, 32),roofTexture, 0x0000ff, 30
 );
 roof.position.x = 0
 roof.position.y = 50
 roof.position.z = 0
 
+roof.castShadow = true;
+roof.receiveShadow = true;
 
 //GET VERTICES TO POSITION ELEMENTS
 const vertices = Array.from(roof.geometry.getAttribute('position').array).reduce((acc, _, i, array) => {
@@ -163,7 +225,7 @@ sampledVertices.forEach(vertex => {
     const smallCylinderRadius = 1;
     const smallCylinder = createMesh(
         new THREE.CylinderGeometry(smallCylinderRadius, smallCylinderRadius, smallCylinderHeight, 32),
-        0xff0000
+        0x00ff00, 0x0000ff, 30
     );
 
 	if (vertex.x > 0 && vertex.z > 0){
@@ -247,9 +309,8 @@ sampledVertices.forEach(vertex => {
 // Create Pole sur y
 const radius_pole = 5;
 const height_pole = 100;
-const poteauGeometry = new THREE.CylinderGeometry(radius_pole, radius_pole, height_pole, 10, 32);
-const poteauMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const poteau = new THREE.Mesh(poteauGeometry, poteauMaterial);
+
+const poteau = createMeshTexture( new THREE.CylinderGeometry(radius_pole, radius_pole, height_pole, 32), cyllinderTexture, 0x0000ff, 30);
 
 poteau.position.x = 0
 poteau.position.y = 0
@@ -369,11 +430,8 @@ geometry.setAttribute( 'position', new THREE.BufferAttribute( buffersuperficie, 
 // Agregar el buffer de normales de 3 floats a la superficie, itemSize = 3
 geometry.setAttribute( 'normal', new THREE.BufferAttribute( buffernormales, 3 ) );
 
-// Crear material para la superficie
-var material = new THREE.MeshBasicMaterial( { color: 'blue', side: THREE.DoubleSide } );
-
 // Crear el mesh con la superficie de revolución
-var mesh = new THREE.Mesh( geometry, material );
+var mesh = new THREE.Mesh( geometry,0x00ff00, 0x0000ff, 30 );
 // Cargar el mesh a la escena
 scene.add(mesh);
 
@@ -390,7 +448,6 @@ manegeGroup.add(ambientLight);
 manegeGroup.add(roof); // roof contient déjà les chaises et les petits cylindres
 manegeGroup.add(poteau);
 manegeGroup.add(mesh); // si 'mesh' est un élément que vous voulez inclure
-manegeGroup.add(pointLight);
 
 // Ajustez la position du groupe si nécessaire
 // manegeGroup.position.set(x, y, z);
@@ -411,24 +468,53 @@ controlsOrbitalFlyingChairs.target.set(5, 0, 5); // Ajustez en fonction de la po
 const lampadaire = new THREE.Group();
 
 const poteauGeo = new THREE.CylinderGeometry(1.25, 1.25, 100, 32);
-const poteauMat = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const poteauLampadaire = new THREE.Mesh(poteauGeo, poteauMat);
+
+const poteauLampadaire = createMesh(poteauGeo, 0x00ff00, 0x0000ff, 30);
 
 const ampouleGeo = new THREE.SphereGeometry(8, 100, 32);
-const ampouleMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-const ampoule = new THREE.Mesh(ampouleGeo, ampouleMat);
+const ampoule = createMeshLight(ampouleGeo, 0xffffff, 0x0000ff, 30000);
 ampoule.position.y = 50;
+ampoule.castShadow = true;
+ampoule.receiveShadow = true;
+
+const pointLight1 = new THREE.PointLight('white', 1, 50);
+
+pointLight1.power = 3000;
+
+pointLight1.add(ampoule);
+
+
+pointLight1.position.set(ampoule.position.x, ampoule.position.y, ampoule.position.z)
+
+
 
 
 lampadaire.add(poteauLampadaire);
-lampadaire.add(ampoule);
-
+//lampadaire.add(ampoule);
+lampadaire.add(pointLight1);
 lampadaire.position.set(50, -70, 0);
 
 lampadaire.scale.set(0.5, 0.5, 0.5);
 
 scene.add(lampadaire);
 
+const dirLight = new THREE.DirectionalLight('white', 1);
+dirLight.position.set(lampadaire.position.x, lampadaire.position.y+100, lampadaire.position.z)
+dirLight.target = lampadaire;
+dirLight.castShadow = true;
+dirLight.shadow.camera.near =0.1;
+dirLight.shadow.camera.far = 200;
+dirLight.shadow.camera.left = -1000;
+dirLight.shadow.camera.right = 1000;
+dirLight.shadow.camera.top = 1000;
+dirLight.shadow.camera.bottom = -1000;
+dirLight.shadow.mapSize.width = 5000;
+dirLight.shadow.mapSize.height = 5000;
+
+scene.add(dirLight);
+
+const helper = new THREE.CameraHelper( dirLight.shadow.camera );
+scene.add( helper );
 
 // MONTAGNE russe
 
@@ -456,15 +542,11 @@ const extrudeSettings = {
 };
 
 const coasterPathGeometry= new THREE.ExtrudeGeometry(shape, extrudeSettings);
-const coasterMaterial = new THREE.MeshStandardMaterial({ color: "red"});
-const coasterMesh = new THREE.Mesh(coasterPathGeometry, coasterMaterial);
+const coasterMesh = createMesh(coasterPathGeometry, 0x00ff00, 0x0000ff, 30);
 
 coasterMesh.scale.set(0.5, 0.5, 0.5);
 
 
-// Enable shadows for the coaster mesh
-coasterMesh.castShadow = true;
-coasterMesh.receiveShadow = true;
 
 
 // Number of points to approximate a circle
@@ -499,11 +581,11 @@ for (let i = 0; i < circlePoints; i++) {
     meshClone.rotateX(Math.PI / 2);
     coasterGroup.add(meshClone);
 
+
+
     if (i % 20 === 0) {
         const cylinderGeometry = new THREE.CylinderGeometry(5, 5, 50, 32);
-        const cylinderMaterial = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
-        const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
-
+        const cylinder= createMesh(cylinderGeometry, 0xFFC0CB, 0x0000ff, 100);
         // Move the cylinders more to the outside
         const offset = 55;
         const zOffset = -40; // Adjust the z offset as needed
@@ -531,8 +613,7 @@ const dossierDimensions = { width: 3, height: 3, depth: 0.5 };
 
 // Création de l'assise
 const assiseGeometry = new THREE.BoxGeometry(assiseDimensions.width, assiseDimensions.height, assiseDimensions.depth);
-const assiseMaterial = new THREE.MeshBasicMaterial({ color:'red' });
-const assise = new THREE.Mesh(assiseGeometry, assiseMaterial);
+const assise = createMesh(assiseGeometry, 0x00ff00, 0x0000ff, 30);
 
 // Positionnement de l'assise
 assise.position.y = assiseDimensions.height / 2;
@@ -541,8 +622,7 @@ assise.position.y = assiseDimensions.height / 2;
 
 // Création du dossier
 const dossierGeometry = new THREE.BoxGeometry(dossierDimensions.width, dossierDimensions.height, dossierDimensions.depth);
-const dossierMaterial = new THREE.MeshBasicMaterial({ color: 'green' });
-const dossier = new THREE.Mesh(dossierGeometry, dossierMaterial);
+const dossier = createMesh(dossierGeometry, 0xff0000, 0x0000ff, 30);
 
 // Positionnement du dossier
 dossier.position.y = (dossierDimensions.height / 2) + assiseDimensions.height;
@@ -577,37 +657,23 @@ chair2.position.z = -3;
 //  devant 
 
 const devantGeometry = new THREE.CylinderGeometry(3, 4, 4, 32);
-
-const devantMaterial = new THREE.MeshBasicMaterial({ color: 'yellow'});
-
-const devant = new THREE.Mesh(devantGeometry, devantMaterial);
+const devant = createMesh(devantGeometry, 0x00ff00, 0x0000ff, 30);
 
 devant.position.y = 2;
-
 devant.position.z = 2;
-
 devant.rotation.x = Math.PI / 2;
 
 
 // derriere = clone
-
 const derriere = devant.clone();
-
 derriere.position.z = -14;
-
 derriere.rotation.x = -Math.PI / 2;
-
-
-
-
-
 
 
 // milieu carro
 
 const milieuGeometry = new THREE.BoxGeometry(8, 3, 12);
-const milieuMaterial = new THREE.MeshBasicMaterial({ color: 'yellow' });
-const milieu = new THREE.Mesh(milieuGeometry, milieuMaterial);
+const milieu = createMesh(milieuGeometry, 0x00ff00, 0x0000ff, 30);
 milieu.position.y = 2;
 milieu.position.z = -6;
 milieu.position.x = 4;

@@ -10,6 +10,8 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 
+carro = new THREE.Group();
+
 // CHAIR
 // Dimensions pour l'assise et le dossier
 const assiseDimensions = { width: 3, height: 0.5, depth: 3 };
@@ -57,8 +59,7 @@ chair2.position.x = 0;
 chair2.position.z = -3;
 
 
-scene.add(chaise);
-scene.add(chair2);
+
 
 
 //  devant 
@@ -76,9 +77,6 @@ devant.position.z = 2;
 devant.rotation.x = Math.PI / 2;
 
 
-
-scene.add(devant);
-
 // derriere = clone
 
 const derriere = devant.clone();
@@ -92,7 +90,6 @@ derriere.rotation.x = -Math.PI / 2;
 
 
 
-scene.add(derriere);
 
 // milieu cube
 
@@ -116,7 +113,6 @@ const milieu2 = milieu.clone();
 
 milieu2.position.x = -4;
 
-scene.add(milieu2);
 
 //clone milieu2
 
@@ -129,7 +125,16 @@ milieu3.rotation.z = Math.PI ;
 
 // scalar
 
-scene.add(milieu3);
+carro.add(chaise);
+carro.add(chair2);
+carro.add(devant);
+carro.add(derriere);
+carro.add(milieu);
+carro.add(milieu2);
+carro.add(milieu3);
+
+
+
 
 
 
@@ -137,7 +142,7 @@ scene.add(milieu3);
 const shape = new THREE.Shape();
 
 
-scene.add(milieu);
+
 
 
 
