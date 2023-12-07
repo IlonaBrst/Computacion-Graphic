@@ -1,58 +1,58 @@
-// Shape of the coaster
-const shape = new THREE.Shape();
-
-shape.moveTo(0, 0);
-shape.lineTo(10, 0);
-shape.lineTo(10, -10);
-shape.bezierCurveTo(10, -10, 25, -15, 30, -25);
-shape.bezierCurveTo(30, -25, 35, -15, 50, -10);
-shape.lineTo(50, 0);
-shape.lineTo(60, 0);
-shape.lineTo(60, -10);
-shape.bezierCurveTo(60, -10, 45, -25, 30, -35);
-shape.bezierCurveTo(30, -35, 15, -25, 0, -10);
-shape.lineTo(0, 0);
-
-// Extrude the shape with customizable depth and steps
-const extrudeSettings = {
-  steps: 10,
-  depth: 10,
-};
-
-const coasterPathGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-
-// Create the coaster mesh with improved materials
-const coasterMesh = createMesh(coasterPathGeometry, 0x00ff00, 0x0000ff, 30);
-
-// Scale the coaster to a more suitable size
-coasterMesh.scale.set(0.5, 0.5, 0.5);
-
-// Remove the loop
-coasterMesh.geometry.vertices.splice(15, 10);
-coasterMesh.geometry.faces.splice(15, 10);
-
-// Rotate the coaster group
-coasterGroup.rotateX(-Math.PI / 2);
-coasterGroup.scale.set(0.5, 0.5, 0.5);
-coasterGroup.position.set(200, -50, 100);
-
-// Add support cylinders at regular intervals
-const supportInterval = 20;
-for (let i = 0; i < coasterMesh.geometry.vertices.length; i += supportInterval) {
-  const cylinderGeometry = new THREE.CylinderGeometry(5, 5, 50, 32);
-  const cylinder = createMesh(cylinderGeometry, 0xFFC0CB, 0x0000ff, 100);
-
-  // Calculate the cylinder position
-  const offset = 55;
-  const zOffset = -40;
-  const cylinderPosition = coasterMesh.geometry.vertices[i].clone().add(
-    coasterMesh.geometry.normals[i].clone().multiplyScalar(offset)
-  ).setZ(zOffset);
-
-  cylinder.position.copy(cylinderPosition);
-  cylinder.rotateX(Math.PI / 2);
-  coasterGroup.add(cylinder);
-}
-
-// Add the coaster group to the scene
-scene.add(coasterGroup);
+// Créer un plan de base pour la montagne russe
+const track = new THREE.Mesh(
+    new THREE.PlaneGeometry(100, 100),
+    new THREE.MeshBasicMaterial({color: 0x000000}),
+  );
+  
+  // Créer les rails de la montagne russe
+  const rails = [];
+  for (let i = 0; i < 100; i++) {
+    const rail = new THREE.Mesh(
+      new THREE.CylinderGeometry(5, 5, 1),
+      new THREE.MeshBasicMaterial({color: 0xff0000}),
+    );
+    rail.position.x = i;
+    rail.position.y = Math.sin(i / 100 * Math.PI);
+    rails.push(rail);
+  }
+  
+  // Créer les supports de la montagne russe
+  const supports = [];
+  for (let i = 0; i < 10; i++) {
+    const support = new THREE.Mesh(
+      new THREE.CylinderGeometry(10, 10, 100),
+      new THREE.MeshBasicMaterial({color: 0x000000}),
+    );
+    support.position.x = i * 10;
+    supports.push(support);
+  }
+  
+  // Ajouter la montagne russe à la scène
+  const scene = new THREE.Scene();
+  scene.add(track);
+  scene.add(rails);
+  
+  // Créer la caméra
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+  camera.position.z = 500;
+  
+  // Créer le renderer
+  const renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+  
+  // Démarrer le rendu
+  render();
+  
+  function render() {
+    // Mettre à jour la position des rails
+    for (let i = 0; i < rails.length; i++) {
+      rails[i].position.y = Math.sin(i / 100 * Math.PI);
+    }
+  
+    // Rendre la scène
+    renderer.render(scene, camera);
+  
+    // Appeler la fonction de rendu à nouveau après un délai
+    requestAnimationFrame(render);
+  }
