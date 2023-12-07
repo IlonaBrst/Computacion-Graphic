@@ -87,13 +87,8 @@ const ambientLight = new THREE.AmbientLight('white',0.5);  // Lumière blanche
 scene.add(ambientLight);
 
 // Création d'un plan vert pour le sol
-<<<<<<< HEAD
 const planeGeometry = new THREE.PlaneGeometry(5000, 2000); // Ajusté pour correspondre à l'échelle du manège
 const planeMaterial = new THREE.MeshPhongMaterial({ map: planeTexture, side: THREE.DoubleSide }); // Double face pour que le plan soit visible de dessous
-=======
-const planeGeometry = new THREE.PlaneGeometry(5000, 2000); 
-const planeMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00 }); // Vert
->>>>>>> ee3dcdfbccebddb3f3685b9115158e33a6a482ae
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 plane.rotation.x = -Math.PI / 2; // Rotation pour que le plan soit horizontal
 plane.position.y = -100; // Position légèrement plus basse pour que le manège repose sur le plan
@@ -104,13 +99,8 @@ plane.castShadow = true;
 
 
 // Création d'un dôme bleu pour le ciel
-<<<<<<< HEAD
 const skyDomeGeometry = new THREE.SphereGeometry(800, 32, 32); // Rayon ajusté
 const skyDomeMaterial = new THREE.MeshPhongMaterial({ map: skyTexture, side: THREE.DoubleSide }); // Double face pour que le dôme soit visible de l'intérieur
-=======
-const skyDomeGeometry = new THREE.SphereGeometry(800, 32, 32); 
-const skyDomeMaterial = new THREE.MeshBasicMaterial({ color: 0xADD8E6, side: THREE.BackSide }); // Bleu
->>>>>>> ee3dcdfbccebddb3f3685b9115158e33a6a482ae
 const skyDome = new THREE.Mesh(skyDomeGeometry, skyDomeMaterial);
 skyDome.castShadow = true;
 
@@ -426,12 +416,7 @@ const manegeGroup = new THREE.Group();
 manegeGroup.add(ambientLight);
 manegeGroup.add(roof); // roof contient déjà les chaises et les petits cylindres
 manegeGroup.add(poteau);
-<<<<<<< HEAD
 manegeGroup.add(mesh); // si 'mesh' est un élément que vous voulez inclure
-=======
-manegeGroup.add(mesh);
-manegeGroup.add(pointLight);
->>>>>>> ee3dcdfbccebddb3f3685b9115158e33a6a482ae
 
 manegeGroup.position.y = -60;
 
@@ -453,50 +438,48 @@ const poteauGeo = new THREE.CylinderGeometry(1.25, 1.25, 100, 32);
 
 const poteauLampadaire = createMesh(poteauGeo, 0x00ff00, 0x0000ff, 30);
 
+// Création de l'ampoule
 const ampouleGeo = new THREE.SphereGeometry(8, 100, 32);
-const ampoule = createMeshLight(ampouleGeo, 0xffffff, 0x0000ff, 30000);
-ampoule.position.y = 50;
-ampoule.castShadow = true;
-ampoule.receiveShadow = true;
-
-const pointLight1 = new THREE.PointLight('white', 1, 50);
-
-pointLight1.power = 3000;
-
-pointLight1.add(ampoule);
+const ampouleMat = new THREE.MeshStandardMaterial({
+  emissive: 0xffffee,
+  emissiveIntensity: 1,
+  color: 0xffffee
+});
+const ampoule = new THREE.Mesh(ampouleGeo, ampouleMat);
+ampoule.position.set(0, 50, 0);
 
 
-pointLight1.position.set(ampoule.position.x, ampoule.position.y, ampoule.position.z)
+// Création de la lumière
+const spotLight = new THREE.SpotLight('white', 100, 500, Math.PI / 6, 25, 1);
+spotLight.position.set(0, 50, 0);
+spotLight.target.position.set(0, 0, 0);
+spotLight.castShadow = true;
 
-
-
-
+// Ajout des composants au lampadaire
+lampadaire.add(ampoule);
+lampadaire.add(spotLight);
+lampadaire.add(spotLight.target);
 lampadaire.add(poteauLampadaire);
-//lampadaire.add(ampoule);
-lampadaire.add(pointLight1);
-lampadaire.position.set(50, -70, 0);
 
+
+
+lampadaire.position.set(50, -70, 50);
 lampadaire.scale.set(0.5, 0.5, 0.5);
 
 scene.add(lampadaire);
 
-const dirLight = new THREE.DirectionalLight('white', 1);
-dirLight.position.set(lampadaire.position.x, lampadaire.position.y+100, lampadaire.position.z)
-dirLight.target = lampadaire;
-dirLight.castShadow = true;
-dirLight.shadow.camera.near =0.1;
-dirLight.shadow.camera.far = 200;
-dirLight.shadow.camera.left = -1000;
-dirLight.shadow.camera.right = 1000;
-dirLight.shadow.camera.top = 1000;
-dirLight.shadow.camera.bottom = -1000;
-dirLight.shadow.mapSize.width = 5000;
-dirLight.shadow.mapSize.height = 5000;
+//ajouter ombre sur tous les objets
+spotLight.castShadow = true;
+spotLight.shadow.mapSize.width = 512;
+spotLight.shadow.mapSize.height = 512;
+spotLight.shadow.camera.near = 0.5;
+spotLight.shadow.camera.far = 500;
+spotLight.shadow.camera.fov = 30;
 
-scene.add(dirLight);
 
-const helper = new THREE.CameraHelper( dirLight.shadow.camera );
-scene.add( helper );
+
+
+
 
 // MONTAGNE russe
 
@@ -628,12 +611,7 @@ chair2.position.z = -3;
 //  devant 
 
 const devantGeometry = new THREE.CylinderGeometry(3, 4, 4, 32);
-<<<<<<< HEAD
 const devant = createMesh(devantGeometry, 0x00ff00, 0x0000ff, 30);
-=======
-const devantMaterial = new THREE.MeshBasicMaterial({ color: 'yellow'});
-const devant = new THREE.Mesh(devantGeometry, devantMaterial);
->>>>>>> ee3dcdfbccebddb3f3685b9115158e33a6a482ae
 
 devant.position.y = 2;
 devant.position.z = 2;
@@ -644,10 +622,6 @@ const derriere = devant.clone();
 derriere.position.z = -14;
 derriere.rotation.x = -Math.PI / 2;
 
-<<<<<<< HEAD
-
-=======
->>>>>>> ee3dcdfbccebddb3f3685b9115158e33a6a482ae
 // milieu carro
 
 const milieuGeometry = new THREE.BoxGeometry(8, 3, 12);
