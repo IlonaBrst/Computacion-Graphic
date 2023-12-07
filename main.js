@@ -59,25 +59,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 
-// directionnal light
-const directionalLight = new THREE.DirectionalLight('white', 1);
-directionalLight.position.set(50, 100, 50);
-directionalLight.castShadow = true;
-// modifier le frustum de la light
-directionalLight.shadow.camera.top = 50;
-directionalLight.shadow.camera.bottom = -50;
-directionalLight.shadow.camera.left = -50;
-directionalLight.shadow.camera.right = 50;
-directionalLight.shadow.camera.near = 0.5;
-directionalLight.shadow.camera.far = 5000;
-directionalLight.shadow.mapSize.width = 512;
-directionalLight.shadow.mapSize.height = 512;
 
-scene.add(directionalLight);
-
-//helper
-const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight);
-scene.add(directionalLightHelper);
 
 
 
@@ -510,7 +492,23 @@ spotLight.shadow.camera.fov = 30;
 
 
 
+const dirLight = new THREE.DirectionalLight('white', 1);
+dirLight.position.set(lampadaire.position.x, lampadaire.position.y+100, lampadaire.position.z)
+dirLight.target = lampadaire;
+dirLight.castShadow = true;
+dirLight.shadow.camera.near =0.1;
+dirLight.shadow.camera.far = 200;
+dirLight.shadow.camera.left = -1000;
+dirLight.shadow.camera.right = 1000;
+dirLight.shadow.camera.top = 1000;
+dirLight.shadow.camera.bottom = -1000;
+dirLight.shadow.mapSize.width = 5000;
+dirLight.shadow.mapSize.height = 5000;
 
+scene.add(dirLight);
+
+const helper1 = new THREE.CameraHelper( dirLight.shadow.camera );
+scene.add( helper1 );
 
 
 // MONTAGNE russe
