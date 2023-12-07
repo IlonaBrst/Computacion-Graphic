@@ -59,6 +59,26 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 
+// directionnal light
+const directionalLight = new THREE.DirectionalLight('white', 1);
+directionalLight.position.set(50, 100, 50);
+directionalLight.castShadow = true;
+// modifier le frustum de la light
+directionalLight.shadow.camera.top = 50;
+directionalLight.shadow.camera.bottom = -50;
+directionalLight.shadow.camera.left = -50;
+directionalLight.shadow.camera.right = 50;
+directionalLight.shadow.camera.near = 0.5;
+directionalLight.shadow.camera.far = 5000;
+directionalLight.shadow.mapSize.width = 512;
+directionalLight.shadow.mapSize.height = 512;
+
+scene.add(directionalLight);
+
+//helper
+const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight);
+scene.add(directionalLightHelper);
+
 
 
 // Texture Loader
@@ -118,6 +138,12 @@ function createMesh(geometry, Kd, Ks, shininess) {
         shininess: 150, // La brillance de la surface
          });
 
+    // shadow
+    material.shadowSide = THREE.DoubleSide;
+    material.castShadow = true;
+    material.receiveShadow = true;
+
+
     return new THREE.Mesh(geometry, material);
 }
 
@@ -141,6 +167,12 @@ function createMeshTexture(geometry, texture, Ks, shininess) {
         specular:Ks,
         shininess: shininess,
          });
+
+    //shadow
+    material.shadowSide = THREE.DoubleSide;
+    material.castShadow = true;
+    material.receiveShadow = true;
+
 
     return new THREE.Mesh(geometry, material);
 }
@@ -518,15 +550,12 @@ coasterMesh.scale.set(0.5, 0.5, 0.5);
 const coasterGroup = new THREE.Group();
 
 const circlePoints = 200;
-
-// Create a Catmull-Rom curve for the circle CON punto 
 const circlePathPoints = new Array(circlePoints).fill().map((_, i) => {
-    const radius = 100;
-    const theta = (i / circlePoints) * Math.PI * 2;
-    const x = Math.cos(theta) * radius;
-    const y = Math.sin(theta) * radius;
-
-    return new THREE.Vector3(x, y, 0);
+  const radius = 100; // Increased radius for a larger loop
+  const theta = (i / circlePoints) * Math.PI * 2;
+  const x = Math.cos(theta) * radius;
+  const y = Math.sin(theta) * radius;
+  return new THREE.Vector3(x, y, 0);
 });
 
 const circlePath = new THREE.CatmullRomCurve3(circlePathPoints, true);
